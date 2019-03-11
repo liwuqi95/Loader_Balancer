@@ -7,6 +7,7 @@ from app.auth import login_required
 from app.db import get_db
 
 import os
+from app.aws import upload_file_to_s3
 
 from app.ImageProcessing import save_thumbnail, draw_face_rectangle
 
@@ -113,18 +114,17 @@ def create():
             cursor = get_db().cursor()
             cursor.execute('INSERT INTO images ( name, user_id) VALUES (%s, %s)', (filename, g.user['id']))
             id = cursor.lastrowid
-            filename = str(id) + '.' + filename.rsplit('.', 1)[1].lower()
-            file.save(os.path.join('app/images', filename))
-            
-            try:
-                draw_face_rectangle(filename)
-                save_thumbnail(filename, 200, 200)
-                get_db().commit()
-                return redirect(url_for('image.show', id=id))
 
-            except:
-                error = "Error creating image."
-                os.remove(os.path.join('app/images', filename))
+
+            # try:
+            save_thumbnail(id, file, filename, 200, 200)
+            draw_face_rectangle(id, file, filename)
+            upload_file_to_s3(id, 'original', file, filename)
+            get_db().commit()
+            return redirect(url_for('image.show', id=id))
+
+            # except:
+            #     error = "Error creating image."
 
         if error is not None:
             flash(error)

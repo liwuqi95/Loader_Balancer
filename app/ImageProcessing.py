@@ -2,8 +2,10 @@ import wand.display
 import cv2 as cv
 import numpy as np
 from wand.image import Image
+from app.aws import upload_file_to_s3
 
-def save_thumbnail(image_name, frame_width, frame_height):
+
+def save_thumbnail(id, file, image_name, frame_width, frame_height):
     '''
     save thumbnail image (aspect ratio preserved) to thumbnails/image_name
 
@@ -14,13 +16,15 @@ def save_thumbnail(image_name, frame_width, frame_height):
     return:
     '''
 
-    with wand.image.Image(filename='app/images/' + image_name) as img:
+    with wand.image.Image(file=file) as img:
         img.strip()
-        img.sample(int(img.width/5), int(img.height/5))
+        img.sample(int(img.width / 5), int(img.height / 5))
         img.transform(resize='{}x{}>'.format(frame_width, frame_height))
         img.save(filename='app/thumbnails/' + image_name)
+        upload_file_to_s3(id, 'thumbnails', file, image_name)
 
-def draw_face_rectangle(image_name):
+
+def draw_face_rectangle(id, img, image_name):
     '''
     save face detected image to faces/image_name
 
@@ -32,20 +36,16 @@ def draw_face_rectangle(image_name):
     '''
 
     face_cascade = cv.CascadeClassifier('app/data/haarcascade_frontalface_default.xml')
-    img = cv.imread('app/images/' + image_name)
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
     if len(faces) == 0:
         return False
 
-    for (x,y,w,h) in faces:
-        cv.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+    for (x, y, w, h) in faces:
+        cv.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-    # cv.imshow('img', img)
-    # cv.waitKey()
-
-    cv.imwrite('app/faces/' + image_name, img)
+    upload_file_to_s3(id, 'face', img, image_name)
     return True
 
 # if __name__ == '__main__':
