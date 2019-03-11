@@ -1,0 +1,5 @@
+.idea/*
+app/images/*
+app/faces/*
+app/thumbnails/*
+*.pyc
