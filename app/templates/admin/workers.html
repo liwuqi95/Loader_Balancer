@@ -9,5 +9,82 @@
 
 
 
+    <div class="row">
+        {% for instance in instances %}
+
+
+            <div class="col-md-12 d-flex align-items-stretch" style="margin-top: 20px;">
+
+                <div class="card" style="width: 100%">
+                    <div class="card-header">
+                        <p class="card-title">ID: {{ instance.id }}</p>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="myChart{{ instance.id }}" style="width: 100%; height: 400px;"></canvas>
+                    </div>
+                    <div class="card-footer text-muted text-center">
+                        {#                        <a href="{{ url_for('image.show', id=image['id']) }}" class="btn btn-outline-primary">View</a>#}
+                    </div>
+                </div>
+
+            </div>
+
+
+            <script>
+                $(document).ready(function () {
+                    $.ajax({
+                        url: "/admin/cpu_data/{{ instance.id }}", success: function (result) {
+                            new Chart(document.getElementById('myChart{{ instance.id }}'), {
+                                type: 'line',
+                                data: {
+                                    labels: result.x,
+                                    datasets: [{
+                                        data: result.y,
+                                        fill: false,
+                                        borderColor: "#3e95cd",
+                                    }]
+                                },
+                                maintainAspectRatio: false,
+
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }],
+                                        xAxes: [{
+                                            ticks: {
+                                                maxRotation: 0,
+                                                minRotation: 0,
+                                                maxTicksLimit: 8
+                                            }
+                                        }]
+                                    },
+                                    legend: {
+                                        display: false
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'CPU Utilization'
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+
+            </script>
+
+
+        {% endfor %}
+
+
+    </div>
+
+
 
 {% endblock %}
+
+

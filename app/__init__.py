@@ -15,13 +15,15 @@ try:
 except OSError:
     pass
 
-
-#init database
+# init database
 from app import db
+
 db.init_app(app)
 
-#init routes
-from app import auth, image, api
+# init routes
+from app import auth, image, api, admin
+
 app.register_blueprint(auth.bp)
 app.register_blueprint(image.bp)
 app.register_blueprint(api.bp)
+app.register_blueprint(admin.bp)

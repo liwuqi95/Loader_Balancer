@@ -7,27 +7,29 @@ from app.auth import login_required
 from app.db import get_db
 
 import os
-import boto3
-from datetime import datetime
+from flask import jsonify
 
-cloudwatch = boto3.resource('cloudwatch',
-                            aws_access_key_id='AKIAIBS34MHIN5U5W24A',
-                            aws_secret_access_key='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',
-                            region_name='us-east-1')
+from app.aws import get_CPU_Utilization, get_instances_list
 
 bp = Blueprint('admin', __name__)
 
 
-@bp.route('/admin/workers')
+@bp.route('/admin')
 def workers():
     """List workers"""
+    instances = get_instances_list()
 
-    metric = cloudwatch.Metric('AWS/EC2', 'CPUUtilization')
+    return render_template('admin/workers.html', instances=instances, cpu_data=cpu_data)
 
-    print(metric.get_statistics(StartTime=datetime(2019, 3, 11),
-                                EndTime=datetime(2019, 3, 12),
-                                Period=3600,
-                                Statistics=['Average'],
-                                Unit='Seconds'))
 
-    return render_template('admin/workers.html')
+@bp.route('/admin/cpu_data/<string:id>')
+def cpu_data(id):
+    data = get_CPU_Utilization(id)
+
+    result = {'x': [], 'y': []}
+
+    for d in data:
+        result['x'].append(d['Timestamp'].strftime("%H:%M:%S"))
+        result['y'].append(d['Average'])
+
+    return jsonify(result)
