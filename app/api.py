@@ -116,6 +116,7 @@ def upload():
             return 'ok\n'
 
         except:
+            get_db().rollback()
             error = "Error creating image."
             os.remove(os.path.join(app.root_path, 'images/', filename))
 

@@ -100,6 +100,7 @@ def create():
                 return redirect(url_for('image.show', id=id))
 
             except:
+                get_db().rollback()
                 error = "Error creating image."
                 os.remove(os.path.join(app.root_path, 'images/', filename))
 
