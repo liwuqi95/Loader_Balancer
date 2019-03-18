@@ -5,3 +5,4 @@ app/thumbnails/*
 .DS_Store
 app/.DS_Store
 *.pyc
+venv
