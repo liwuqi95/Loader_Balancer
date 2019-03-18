@@ -21,9 +21,9 @@ from app import db
 db.init_app(app)
 
 # init routes
-from app import auth, image, api, admin
+from app import auth, image, api, worker
 
 app.register_blueprint(auth.bp)
 app.register_blueprint(image.bp)
 app.register_blueprint(api.bp)
-app.register_blueprint(admin.bp)
+app.register_blueprint(worker.bp)
