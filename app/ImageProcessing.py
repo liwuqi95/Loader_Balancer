@@ -2,10 +2,11 @@ import wand.display
 import cv2 as cv
 import numpy as np
 from wand.image import Image
-from app.aws import upload_file_to_s3
+from app.aws import upload, upload_file_to_s3
+from app import app
+import os
 
-
-def save_thumbnail(id, file, image_name, frame_width, frame_height):
+def save_thumbnail(id, file, imagename, frame_width, frame_height):
     '''
     save thumbnail image (aspect ratio preserved) to thumbnails/image_name
 
@@ -16,12 +17,15 @@ def save_thumbnail(id, file, image_name, frame_width, frame_height):
     return:
     '''
 
-    with wand.image.Image(file=file) as img:
+    with wand.image.Image(filename=os.path.join(app.root_path, 'images/', imagename)) as img:
         img.strip()
         img.sample(int(img.width / 5), int(img.height / 5))
         img.transform(resize='{}x{}>'.format(frame_width, frame_height))
-        img.save(filename='app/thumbnails/' + image_name)
-        upload_file_to_s3(id, 'thumbnails', file, image_name)
+
+        key = 'thumbnails/' + imagename
+
+        img.save(filename=os.path.join(app.root_path, key))
+        upload(key)
 
 
 def draw_face_rectangle(id, img, image_name):
@@ -35,7 +39,8 @@ def draw_face_rectangle(id, img, image_name):
     bool: True if at least one face was detected
     '''
 
-    face_cascade = cv.CascadeClassifier('app/data/haarcascade_frontalface_default.xml')
+    face_cascade = cv.CascadeClassifier(os.path.join(app.root_path,'data/haarcascade_frontalface_default.xml'))
+    img = cv.imread(os.path.join(app.root_path,'images/', image_name))
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
@@ -45,7 +50,10 @@ def draw_face_rectangle(id, img, image_name):
     for (x, y, w, h) in faces:
         cv.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-    upload_file_to_s3(id, 'face', img, image_name)
+    key = 'faces/' + image_name
+    cv.imwrite(os.path.join(app.root_path, key), img)
+    upload(key)
+
     return True
 
 # if __name__ == '__main__':

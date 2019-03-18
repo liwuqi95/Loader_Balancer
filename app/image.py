@@ -3,12 +3,11 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 
+import os
 from app.auth import login_required
 from app.db import get_db
-
-import os
-from app.aws import upload_file_to_s3
-
+from app.aws import upload, download
+from app import app
 from app.ImageProcessing import save_thumbnail, draw_face_rectangle
 
 bp = Blueprint('image', __name__)
@@ -58,6 +57,13 @@ def get_image(type, id):
 
     dir = 'images' if type == 0 else ('thumbnails' if type == 1 else 'faces')
 
+    key = str(image["id"]) + '.' + image["name"].rsplit('.', 1)[1]
+
+    if not os.path.isfile(os.path.join(app.root_path, 'images', key)):
+        download('images/' + key)
+        download('thumbnails/' + key)
+        download('faces/' + key)
+
     return send_from_directory(dir, str(image["id"]) + '.' + image["name"].rsplit('.', 1)[1])
 
 
@@ -81,7 +87,9 @@ def show(id):
     if image['user_id'] != g.user['id']:
         abort(403)
 
-    return render_template('image/show.html', image=image)
+    prefix = 'https://s3.amazonaws.com/ece1779a2group123bucket/'
+    key = str(image["id"]) + '.' + image["name"].rsplit('.', 1)[1]
+    return render_template('image/show.html', image=image, image_url=prefix+'images/'+key, face_url=prefix+'faces/'+key)
 
 
 ##TODO add more image types
@@ -115,16 +123,19 @@ def create():
             cursor.execute('INSERT INTO images ( name, user_id) VALUES (%s, %s)', (filename, g.user['id']))
             id = cursor.lastrowid
 
+            filename = str(id) + '.' + filename.rsplit('.', 1)[1].lower()
+            file.save(os.path.join(app.root_path, 'images/', filename))
 
             # try:
             save_thumbnail(id, file, filename, 200, 200)
             draw_face_rectangle(id, file, filename)
-            upload_file_to_s3(id, 'original', file, filename)
+            upload('images/' + filename)
             get_db().commit()
             return redirect(url_for('image.show', id=id))
 
             # except:
             #     error = "Error creating image."
+            #     os.remove(os.path.join(app.root_path, 'images/', filename))
 
         if error is not None:
             flash(error)

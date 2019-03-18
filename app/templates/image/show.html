@@ -10,7 +10,7 @@
 
         <h6>{{image["name"]}}</h6>
 
-        <img src="{{ url_for('image.get_image', id=image['id'], type=0) }}" width="100%">
+        <img src="{{image_url}}" width="100%">
 
     </div>
 
@@ -18,7 +18,7 @@
     <div class="col-md-6 text-center">
 
         <h6>Face Detection Result</h6>
-        <img src="{{ url_for('image.get_image', id=image['id'], type=2) }}" width="100%"
+        <img src="{{face_url}}" width="100%"
              Alt="We cannot find any Face in your image.">
     </div>
 

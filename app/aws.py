@@ -1,5 +1,7 @@
 import boto3
 from datetime import datetime, timedelta
+import os
+from app import app
 import pytz
 
 s3 = boto3.resource('s3',
@@ -15,14 +17,46 @@ cloudwatch = boto3.client('cloudwatch', aws_access_key_id='AKIAIBS34MHIN5U5W24A'
                           aws_secret_access_key='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',
                           region_name='us-east-1')
 
+cl = boto3.client('s3',
+                    aws_access_key_id='AKIAIBS34MHIN5U5W24A',
+                    aws_secret_access_key='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',
+                    region_name='us-east-1')
+rds = boto3.client('rds',
+                    aws_access_key_id='AKIAIBS34MHIN5U5W24A',
+                    aws_secret_access_key='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',
+                    region_name='us-east-1')
+
+bucket = s3.Bucket('ece1779a2group123bucket')
+
 elb = boto3.client('elbv2', aws_access_key_id='AKIAIBS34MHIN5U5W24A',
                    aws_secret_access_key='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',
                    region_name='us-east-1')
 
-
 def upload_file_to_s3(id, type, file, filename):
     s3.Bucket('ece1779a2group123bucket').upload_fileobj(file, str(id) + '/' + type + '/' + filename)
 
+def upload(key):
+    print('uploading ' + key)
+    bucket.upload_file(os.path.join(app.root_path, key), key)
+
+def download(key):
+    try:
+        bucket.download_file(key, os.path.join(app.root_path, key))
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            print("The object does not exist.")
+        else:
+            raise
+
+def list_objects():
+    res = cl.list_objects(Bucket='ece1779a2group123bucket')
+    if 'Contents' not in res.keys(): return None
+    return [{'Key': obj['Key']} for obj in res['Contents']]
+
+def clear():
+    objects = list_objects()
+    if objects is not None:
+        bucket.delete_objects(Delete={'Objects' : objects})
 
 def get_elb_groupArn():
     for group in elb.describe_target_groups()['TargetGroups']:
@@ -31,6 +65,10 @@ def get_elb_groupArn():
 
 
 def get_instances_list():
+    instances = ec2.instances.all()
+    return instances
+
+def get_CPU_Utilization(instance_id):
     groupArn = get_elb_groupArn()
 
     instances = []
@@ -102,10 +140,7 @@ def get_CPU_Utilization(instance, period, seconds):
         Dimensions=[{'Name': 'InstanceId', 'Value': instance}]
     )
 
-    result = {'x': [], 'y': []}
+    return cpu['Datapoints']
 
-    for d in cpu['Datapoints']:
-        result['x'].insert(0, d['Timestamp'].astimezone(tz=pytz.timezone('US/Eastern')).strftime("%H:%M:%S"))
-        result['y'].insert(0, (d['Average']))
-
-    return result
+if __name__ == "__main__":
+    pass

@@ -2,4 +2,6 @@
 app/images/*
 app/faces/*
 app/thumbnails/*
+.DS_Store
+app/.DS_Store
 *.pyc
