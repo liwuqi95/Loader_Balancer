@@ -73,6 +73,22 @@ def remove_instances(n):
         print('Removed Instance ' + instance.id)
 
 
+def get_Network_Request(targetGroup, period, seconds):
+    metric_name = 'ApplicationELB'
+
+    elb = cloudwatch.get_metric_statistics(
+        Period=period,
+        StartTime=datetime.utcnow() - timedelta(seconds=seconds),
+        EndTime=datetime.utcnow(),
+        MetricName=metric_name,
+        Namespace='TargetGroup',
+        Statistics=['Average'],
+        Dimensions=[{'Name': 'InstanceId', 'Value': targetGroup}]
+    )
+
+    print(elb)
+
+
 def get_CPU_Utilization(instance, period, seconds):
     metric_name = 'CPUUtilization'
 

@@ -1,6 +1,5 @@
-from app.aws import get_average_cpu_load, create_instances, remove_instances
+from app.aws import get_average_cpu_load, create_instances, remove_instances, get_Network_Request, get_instances_list
 import time
-
 
 growing_threshold = 80
 shrinking_threshold = 40
@@ -24,7 +23,10 @@ def auto_scaling():
     print('LOGGING==Finish Auto Scaling')
 
 
+# while True:
+#     auto_scaling()
+#     time.sleep(2)
 
-while True:
-    auto_scaling()
-    time.sleep(2)
+
+for instance in get_instances_list():
+    get_Network_Request(instance, 60, 1800)
