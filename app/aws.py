@@ -88,11 +88,13 @@ def create_instances(n):
     for img in ec2.images.filter(Owners=['106330839424']):
         imageID = img.id
 
-    instances = ec2.create_instances(ImageId=imageID, InstanceType='t2.small', MinCount=n, MaxCount=n)
+    instances = ec2.create_instances(ImageId=imageID, InstanceType='t2.small',
+                                     SecurityGroupIds=['sg-06f0dba2ff5b61362'], MinCount=n,
+                                     MaxCount=n)
 
     for instance in ec2.instances.filter(InstanceIds=list(map(lambda ins: ins.id, instances))):
         instance.wait_until_running()
-        print('Created Instance ' + instance.id)
+        print('Created Instance ' + instance.id + ' with image ' + imageID)
 
     l = list(map(lambda x: {'Id': x.id, 'Port': 5000, }, instances))
     groupArn = get_elb_groupArn()
@@ -120,6 +122,8 @@ def get_Network_Request(period, seconds):
         Statistics=['Average'],
         Dimensions=[{'Name': 'TargetGroup', 'Value': targetGroup.rsplit(':', 1)[1]}]
     )
+
+    print(elb)
 
     result = {'x': [], 'y': []}
 

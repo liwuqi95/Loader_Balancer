@@ -10,7 +10,17 @@ bp = Blueprint('worker', __name__)
 from app.db import init_db
 
 
+def request_count(view):
+
+    def wrapped_view(**kwargs):
+        print(request.host)
+        return view(**kwargs)
+
+    return wrapped_view
+
+
 @bp.route('/workers')
+@request_count
 def workers():
     """List workers"""
     instances = get_instances_list()
