@@ -9,7 +9,7 @@ from app.aws import get_CPU_Utilization, get_instances_list, create_instances, r
 
 bp = Blueprint('worker', __name__)
 from app.db import init_db
-import pytz
+import os
 
 
 @bp.before_app_request
@@ -24,11 +24,13 @@ def request_count():
         ' WHERE requests.created = %s ', (time,)
     )
 
+    ip = ':'.join(os.uname()[1].split('-')[1:])
+
     r = cursor.fetchone()
 
     if r is None:
         cursor.execute('INSERT INTO requests ( ip, created, request_count) VALUES (%s, %s, %s )',
-                       (request.access_route[0], time, 1))
+                       (ip, time, 1))
     else:
         cursor.execute(
             'UPDATE requests SET request_count = %s WHERE id = %s ',
