@@ -19,7 +19,7 @@ def request_count():
 
     time = datetime.now().strftime('%Y-%m-%d %H-%M-00')
 
-    print(request.environ['SERVER_NAME'])
+    print(request.access_route[0])
 
     cursor.execute(
         'SELECT id, ip, request_count '
@@ -72,7 +72,7 @@ def cpu_data(id):
     cursor.execute(
         'SELECT request_count, created '
         ' FROM requests WHERE ip = %s AND created > %s ',
-        (instance.private_ip_address + ":5000",
+        (instance.private_ip_address,
          (datetime.utcnow() - timedelta(minutes=30)).strftime('%Y-%m-%d %H-%M-00')))
 
     requests = cursor.fetchall()
