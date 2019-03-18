@@ -36,7 +36,7 @@ def remove_instance():
 
 @bp.route('/worker/cpu_data/<string:id>')
 def cpu_data(id):
-    data = get_CPU_Utilization(id, 60, 1800)
+    data = get_CPU_Utilization(id, 600, 18000)
 
     return jsonify(data)
 
