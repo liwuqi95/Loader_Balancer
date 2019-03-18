@@ -29,7 +29,9 @@ def auto_scaling(con):
         average, count = get_average_cpu_load()
         print('LOGGING Current Count is ' + str(count) + ' Average is ' + str(round(average)))
 
-        if average > growing_threshold:
+        if count < 1:
+            create_instances(1)
+        elif average > growing_threshold:
             print('LOGGING need to expend by ratio ' + str(expend_ratio))
             create_instances(round(count * (expend_ratio - 1)))
         elif average < shrinking_threshold and count > 1:
