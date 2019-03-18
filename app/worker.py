@@ -18,9 +18,6 @@ def request_count():
     cursor = get_db().cursor(dictionary=True, buffered=True)
 
     time = datetime.now().strftime('%Y-%m-%d %H-%M-00')
-
-    print(request.access_route[0])
-
     cursor.execute(
         'SELECT id, ip, request_count '
         ' FROM requests '
@@ -31,7 +28,7 @@ def request_count():
 
     if r is None:
         cursor.execute('INSERT INTO requests ( ip, created, request_count) VALUES (%s, %s, %s )',
-                       (request.host, time, 1))
+                       (request.access_route[0], time, 1))
     else:
         cursor.execute(
             'UPDATE requests SET request_count = %s WHERE id = %s ',
