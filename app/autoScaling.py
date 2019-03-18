@@ -35,7 +35,12 @@ def auto_scaling(con):
             create_instances(round(count * (expend_ratio - 1)))
         elif average < shrinking_threshold and count > 1:
             print('LOGGING need to shrink by ratio ' + str(shrink_ratio))
-            remove_instances(count - math.ceil(count * (1 - 1 / shrink_ratio)))
+            c = round(count * (1 - 1 / shrink_ratio))
+
+            if c >= count:
+                c = count - 1 if count - 1 >= 0 else 0
+
+            remove_instances(c)
 
         print('LOGGING==Finish Auto Scaling')
     except:
