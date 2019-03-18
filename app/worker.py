@@ -7,6 +7,7 @@ from app.db import get_db
 from app.aws import get_CPU_Utilization, get_instances_list, create_instances, remove_instances
 
 bp = Blueprint('worker', __name__)
+from app.db import init_db_command
 
 
 @bp.route('/workers')
@@ -41,25 +42,31 @@ def cpu_data(id):
     return jsonify(data)
 
 
-@bp.route('/worker/setting')
+@bp.route('/worker/setting', methods=('GET', 'POST'))
 def setting():
     if request.method == 'POST':
-        growing_threshold = request.form['growing_threshold']
-        shrinking_threshold = request.form['shrinking_threshold']
-        expend_ratio = request.form['expend_ratio']
-        shrink_ratio = request.form['shrink_ratio']
+        growing_threshold = float(request.form['growing_threshold'])
+        shrinking_threshold = float(request.form['shrinking_threshold'])
+        expend_ratio = float(request.form['expend_ratio'])
+        shrink_ratio = float(request.form['shrink_ratio'])
         cursor = get_db().cursor()
 
         cursor.execute(
-            'UPDATE settings SET (growing_threshold, shrinking_threshold, expend_ratio, shrink_ratio) VALUES (%s, %s, %s, %s) WHERE id = 1',
+            'UPDATE settings SET growing_threshold = %s, shrinking_threshold = %s, expend_ratio = %s , shrink_ratio = %s WHERE id = 1 ',
             (growing_threshold, shrinking_threshold, expend_ratio, shrink_ratio))
         get_db().commit()
 
-        flash('Update succuessfuly')
+    cursor = get_db().cursor(dictionary=True)
+    cursor.execute(
+        'SELECT id, growing_threshold, shrinking_threshold, expend_ratio, shrink_ratio'
+        ' FROM settings s')
 
-    return render_template('worker/setting.html')
+    setting = cursor.fetchone()
+
+    return render_template('worker/setting.html', setting=setting)
 
 
 @bp.route('/worker/remove_data')
 def remove_data():
+    init_db_command()
     return redirect(url_for('worker.workers'))
