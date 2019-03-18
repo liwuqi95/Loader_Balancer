@@ -27,7 +27,6 @@ def request_count():
     if r is None:
         cursor.execute('INSERT INTO requests ( ip, created, request_count) VALUES (%s, %s, %s )',
                        (request.host, time, 0))
-        print('inserted')
     else:
         cursor.execute(
             'UPDATE requests SET request_count = %s WHERE id = %s ',
