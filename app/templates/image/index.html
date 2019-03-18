@@ -29,7 +29,7 @@
                 <p class="card-title">{{ image['name'] }}</p>
             </div>
             <div class="card-body">
-                <img src="{{ url_for('image.get_image', id=image['id'], type=1) }}" class="card-img-top" width="80%"
+                <img src="{{image['thumb']}}" class="card-img-top" width="80%"
                      style="    top: 50%; left:50%;transform: translate(-50%, -50%); position: relative;">
             </div>
             <div class="card-footer text-muted text-center">
