@@ -42,6 +42,8 @@ def request_count():
 @bp.route('/workers')
 def workers():
     """List workers"""
+
+
     instances = get_instances_list()
 
     return render_template('worker/index.html', instances=instances, cpu_data=cpu_data)

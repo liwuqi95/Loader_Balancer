@@ -103,7 +103,7 @@ def create_instances(n):
         print('Creating Instance ' + instance.id + ' with image ' + imageID)
         instance.wait_until_running()
 
-    time.sleep(300)
+    time.sleep(5)
 
     l = list(map(lambda x: {'Id': x.id, 'Port': 5000, }, instances))
     groupArn = get_elb_groupArn()
