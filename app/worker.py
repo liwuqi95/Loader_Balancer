@@ -11,7 +11,11 @@ from app.db import init_db
 
 @bp.before_app_request
 def request_count():
-    print("worker ip: "+ request.host + "\n")
+    pass
+    # print("worker ip: "+ request.host + "\n")
+    # cursor = get_db().cursor()
+    # cursor.execute()
+    # get_db().commit()
 
 @bp.route('/workers')
 def workers():
