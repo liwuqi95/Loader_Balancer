@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import os
 from app import app
 import pytz
-
+import time
 s3 = boto3.resource('s3',
                     aws_access_key_id='AKIAIBS34MHIN5U5W24A',
                     aws_secret_access_key='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',
@@ -102,6 +102,8 @@ def create_instances(n):
     for instance in ec2.instances.filter(InstanceIds=list(map(lambda ins: ins.id, instances))):
         print('Creating Instance ' + instance.id + ' with image ' + imageID)
         instance.wait_until_running()
+
+    time.sleep(300)
 
     l = list(map(lambda x: {'Id': x.id, 'Port': 5000, }, instances))
     groupArn = get_elb_groupArn()
