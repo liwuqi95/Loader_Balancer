@@ -3,7 +3,6 @@ from os import sys, path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from app.aws import get_average_cpu_load, create_instances, remove_instances
 import mysql.connector
-import math
 import time
 
 
@@ -43,13 +42,14 @@ def auto_scaling(con):
             remove_instances(c)
 
         print('LOGGING==Finish Auto Scaling')
+
     except:
         print('LOGGING==Error')
 
 
 con = mysql.connector.connect(user='root', password='ece1779pass',
-                              host='127.0.0.1',
-                              # host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
+                              # host='127.0.0.1',
+                              host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
                               port=3306,
                               database='cloud')
 
