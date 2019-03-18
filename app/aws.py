@@ -71,6 +71,7 @@ def get_instances_list():
 
     for target in elb.describe_target_health(TargetGroupArn=groupArn)['TargetHealthDescriptions']:
         instances.append(target['Target']['Id'])
+    print(instances)
 
     return instances
 
@@ -100,8 +101,9 @@ def create_instances(n):
                                      MaxCount=n)
 
     for instance in ec2.instances.filter(InstanceIds=list(map(lambda ins: ins.id, instances))):
+        print('Creating Instance ' + instance.id + ' with image ' + imageID)
         instance.wait_until_running()
-        print('Created Instance ' + instance.id + ' with image ' + imageID)
+
 
     l = list(map(lambda x: {'Id': x.id, 'Port': 5000, }, instances))
     groupArn = get_elb_groupArn()
@@ -111,9 +113,11 @@ def create_instances(n):
 def remove_instances(n):
     """remove n instances"""
     instances = get_instances_list()
-    for instance in ec2.instances.filter(InstanceIds=instances[:n]):
-        instance.terminate()
-        print('Removed Instance ' + instance.id)
+    for instance in instances:
+        i = ec2.Instance(instance)
+        print('Removing Instance ' + instance)
+        i.terminate()
+
 
 
 def get_CPU_Utilization(instance, period, seconds):

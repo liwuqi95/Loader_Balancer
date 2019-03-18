@@ -1,7 +1,7 @@
 from os import sys, path
 
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from app.aws import get_average_cpu_load, create_instances, remove_instances, get_Network_Request
+from app.aws import get_average_cpu_load, create_instances, remove_instances
 import mysql.connector
 import math
 import time
