@@ -2,6 +2,7 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, send_from_directory
 )
 
+from datetime import datetime, timedelta
 from flask import jsonify
 from app.db import get_db
 from app.aws import get_CPU_Utilization, get_instances_list, create_instances, remove_instances
@@ -9,13 +10,31 @@ from app.aws import get_CPU_Utilization, get_instances_list, create_instances, r
 bp = Blueprint('worker', __name__)
 from app.db import init_db
 
+
 @bp.before_app_request
 def request_count():
-    pass
-    # print("worker ip: "+ request.host + "\n")
-    # cursor = get_db().cursor()
-    # cursor.execute()
-    # get_db().commit()
+    cursor = get_db().cursor(dictionary=True)
+
+    time = datetime.now().strftime('%Y-%m-%d %H-%M-00')
+
+    cursor.execute(
+        'SELECT id, ip, request_count '
+        ' FROM requests '
+        ' WHERE requests.created = %s '
+        ' ORDER BY created DESC', (time,)
+    )
+
+    r = cursor.fetchone()
+    if r is None:
+        cursor.execute('INSERT INTO requests ( ip, created, request_count) VALUES (%s, %s, %s )',
+                       (request.host, time, 0))
+        print('inserted')
+    else:
+        cursor.execute(
+            'UPDATE requests SET request_count = %s WHERE id = %s ',
+            (r['request_count'] + 1, r['id']))
+
+    get_db().commit()
 
 @bp.route('/workers')
 def workers():
@@ -44,7 +63,27 @@ def remove_instance():
 
 @bp.route('/worker/cpu_data/<string:id>')
 def cpu_data(id):
-    data = get_CPU_Utilization(id, 600, 18000)
+    instance, data = get_CPU_Utilization(id, 600, 18000)
+
+    cursor = get_db().cursor(dictionary=True)
+
+    cursor.execute(
+        'SELECT request_count, created '
+        ' FROM requests WHERE ip = %s AND created > %s ',
+        (instance.public_ip_address, (datetime.now() - timedelta(minutes=30)).strftime('%Y-%m-%d %H-%M-00')))
+
+    requests = cursor.fetchall()
+
+    result = {}
+
+    for request in requests:
+        result[request['created'].strftime("%H:%M:%S")] = request['request_count']
+
+    for label in data['x']:
+        if label in result:
+            data['z'].append(result[label])
+        else:
+            data['z'].append(0)
 
     return jsonify(data)
 

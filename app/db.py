@@ -38,6 +38,15 @@ TABLES['settings'] = (
     "  PRIMARY KEY (`id`)"
     ")")
 
+TABLES['requests'] = (
+    "CREATE TABLE `requests` ("
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,"
+    "  `request_count` int(11) NOT NULL,"
+    " `ip` varchar(255) NOT NULL,"
+    "  `created` DATETIME,"
+    "  PRIMARY KEY (`id`)"
+    ")")
+
 DB = None
 
 
@@ -69,6 +78,7 @@ def init_db():
     cursor.execute("DROP TABLE IF EXISTS images;")
     cursor.execute("DROP TABLE IF EXISTS users;")
     cursor.execute("DROP TABLE IF EXISTS settings;")
+    cursor.execute("DROP TABLE IF EXISTS requests;")
 
     print('creating tables')
     for table_name in TABLES.keys():

@@ -147,13 +147,22 @@ def get_CPU_Utilization(instance, period, seconds):
         Dimensions=[{'Name': 'InstanceId', 'Value': instance}]
     )
 
-    result = {'x': [], 'y': []}
+    data = []
 
     for d in cpu['Datapoints']:
-        result['x'].insert(0, d['Timestamp'].astimezone(tz=pytz.timezone('US/Eastern')).strftime("%H:%M:%S"))
-        result['y'].insert(0, (d['Average']))
+        data.append(d)
 
-    return result
+    result = {'x': [], 'y': [], 'z': []}
+
+    data.sort(key=lambda x: x['Timestamp'])
+
+    for d in data:
+        result['x'].append(d['Timestamp'].astimezone(tz=pytz.timezone('US/Eastern')).strftime("%H:%M:%S"))
+        result['y'].append(d['Average'])
+
+    instance = ec2.Instance(instance)
+
+    return instance, result
 
 
 if __name__ == "__main__":
