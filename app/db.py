@@ -3,7 +3,7 @@ import os
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
-from app.aws import clear
+from app.aws import clear_s3
 from app import app
 
 TABLES = {}
@@ -67,7 +67,7 @@ def init_db_command():
     os.system('rm ' + os.path.join(app.root_path, 'images/*'))
     os.system('rm ' + os.path.join(app.root_path, 'faces/*'))
     os.system('rm ' + os.path.join(app.root_path, 'thumbnails/*'))
-    clear()
+    clear_s3()
 
     click.echo('Initialized the database.')
 

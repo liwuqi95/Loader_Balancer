@@ -6,7 +6,7 @@ from werkzeug.exceptions import abort
 import os
 from app.auth import login_required
 from app.db import get_db
-from app.aws import upload, download
+from app.aws import move_to_s3
 from app import app
 from app.ImageProcessing import save_thumbnail, draw_face_rectangle
 
@@ -92,16 +92,16 @@ def create():
             filename = str(id) + '.' + filename.rsplit('.', 1)[1].lower()
             file.save(os.path.join(app.root_path, 'images/', filename))
 
-            # try:
-            save_thumbnail(id, file, filename, 200, 200)
-            draw_face_rectangle(id, file, filename)
-            upload('images/' + filename)
-            get_db().commit()
-            return redirect(url_for('image.show', id=id))
+            try:
+                save_thumbnail(filename, 200, 200)
+                draw_face_rectangle(filename)
+                move_to_s3('images/' + filename)
+                get_db().commit()
+                return redirect(url_for('image.show', id=id))
 
-            # except:
-            #     error = "Error creating image."
-            #     os.remove(os.path.join(app.root_path, 'images/', filename))
+            except:
+                error = "Error creating image."
+                os.remove(os.path.join(app.root_path, 'images/', filename))
 
         if error is not None:
             flash(error)
