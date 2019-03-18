@@ -11,7 +11,11 @@ from app import app
 from app.ImageProcessing import save_thumbnail, draw_face_rectangle
 
 bp = Blueprint('image', __name__)
+url_prefix = 'https://s3.amazonaws.com/ece1779a2group123bucket/'
 
+def get_url(type, image):
+    key = '/' + str(image["id"]) + '.' + image["name"].rsplit('.', 1)[1]
+    return url_prefix + type + key
 
 @bp.route('/')
 @login_required
@@ -27,45 +31,9 @@ def index():
     )
 
     images = cursor.fetchall()
-
+    for image in images:
+        image['thumb'] = get_url('thumbnails', image)
     return render_template('image/index.html', images=images)
-
-
-@bp.route('/images/<int:type>/<int:id>')
-@login_required
-def get_image(type, id):
-    """
-    Return a image file specified by the id and type
-    id: image id
-    type: 0 means thumb, 1 means original image, 2 means the image with face recognition
-    """
-    cursor = get_db().cursor(dictionary=True)
-
-    cursor.execute(
-        'SELECT p.id, name, user_id'
-        ' FROM images p'
-        ' WHERE p.id = %s',
-        (id,))
-
-    image = cursor.fetchone()
-
-    if image is None:
-        abort(404, "Image doesn't exist.".format(id))
-
-    if image['user_id'] != g.user['id']:
-        abort(403)
-
-    dir = 'images' if type == 0 else ('thumbnails' if type == 1 else 'faces')
-
-    key = str(image["id"]) + '.' + image["name"].rsplit('.', 1)[1]
-
-    if not os.path.isfile(os.path.join(app.root_path, 'images', key)):
-        download('images/' + key)
-        download('thumbnails/' + key)
-        download('faces/' + key)
-
-    return send_from_directory(dir, str(image["id"]) + '.' + image["name"].rsplit('.', 1)[1])
-
 
 @bp.route('/image/<int:id>')
 @login_required
@@ -86,10 +54,8 @@ def show(id):
 
     if image['user_id'] != g.user['id']:
         abort(403)
-
-    prefix = 'https://s3.amazonaws.com/ece1779a2group123bucket/'
-    key = str(image["id"]) + '.' + image["name"].rsplit('.', 1)[1]
-    return render_template('image/show.html', image=image, image_url=prefix+'images/'+key, face_url=prefix+'faces/'+key)
+    
+    return render_template('image/show.html', image=image, image_url=get_url('images', image), face_url=get_url('faces', image))
 
 
 ##TODO add more image types
