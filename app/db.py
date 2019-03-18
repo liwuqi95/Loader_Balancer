@@ -28,6 +28,16 @@ TABLES['images'] = (
     "  REFERENCES `users` (`id`) ON DELETE CASCADE"
     ")")
 
+TABLES['setting'] = (
+    "CREATE TABLE `settings` ("
+    "  `id` int(11) NOT NULL AUTO_INCREMENT,"
+    "  `growing_threshold` float(11) NOT NULL,"
+    "  `shrinking_threshold` float(11) NOT NULL,"
+    "  `expend_ratio` float(11) NOT NULL,"
+    "  `shrink_ratio` float(11) NOT NULL,"
+    "  PRIMARY KEY (`id`)"
+    ")")
+
 
 def get_db():
     """return current connection or create a new one"""
@@ -57,6 +67,10 @@ def init_db():
 
     for table_name in TABLES:
         cursor.execute(TABLES[table_name])
+
+    cursor.execute(
+        "INSERT INTO settings (growing_threshold, shrinking_threshold, expend_ratio, shrink_ratio) VALUES (%s, %s, %s, %s)",
+        (80, 40, 2, 0.5))
 
 
 @click.command('init-db')

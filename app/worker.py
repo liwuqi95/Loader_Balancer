@@ -3,7 +3,7 @@ from flask import (
 )
 
 from flask import jsonify
-
+from app.db import get_db
 from app.aws import get_CPU_Utilization, get_instances_list, create_instances, remove_instances
 
 bp = Blueprint('worker', __name__)
@@ -43,6 +43,20 @@ def cpu_data(id):
 
 @bp.route('/worker/setting')
 def setting():
+    if request.method == 'POST':
+        growing_threshold = request.form['growing_threshold']
+        shrinking_threshold = request.form['shrinking_threshold']
+        expend_ratio = request.form['expend_ratio']
+        shrink_ratio = request.form['shrink_ratio']
+        cursor = get_db().cursor()
+
+        cursor.execute(
+            'UPDATE settings SET (growing_threshold, shrinking_threshold, expend_ratio, shrink_ratio) VALUES (%s, %s, %s, %s) WHERE id = 1',
+            (growing_threshold, shrinking_threshold, expend_ratio, shrink_ratio))
+        get_db().commit()
+
+        flash('Update succuessfuly')
+
     return render_template('worker/setting.html')
 
 
