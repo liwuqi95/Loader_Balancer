@@ -35,6 +35,7 @@ elb = boto3.client('elbv2', aws_access_key_id='AKIAIBS34MHIN5U5W24A',
 
 
 def move_to_s3(key):
+    """store image to s3"""
     path = os.path.join(app.root_path, key)
     bucket.upload_file(path, key)
     os.remove(path)
@@ -42,24 +43,28 @@ def move_to_s3(key):
 
 
 def list_objects():
+    """list all the s3 objects"""
     res = cl.list_objects(Bucket='ece1779a2group123bucket')
     if 'Contents' not in res.keys(): return None
     return [{'Key': obj['Key']} for obj in res['Contents']]
 
 
 def clear_s3():
+    """clear s3 """
     objects = list_objects()
     if objects is not None:
         bucket.delete_objects(Delete={'Objects': objects})
 
 
 def get_elb_groupArn():
+    """get elb group arn"""
     for group in elb.describe_target_groups()['TargetGroups']:
         if group['TargetGroupName'] == '1779':
             return group['TargetGroupArn']
 
 
 def get_instances_list():
+    """list all instances"""
     groupArn = get_elb_groupArn()
 
     instances = []
@@ -71,12 +76,13 @@ def get_instances_list():
 
 
 def get_average_cpu_load():
+    """get average cpu load"""
     instances = get_instances_list()
 
     sum = 0
 
     for instance in instances:
-        data = get_CPU_Utilization(instance, 60, 119)
+        i, data = get_CPU_Utilization(instance, 60, 119)
         if 'y' in data and len(data['y']) > 0:
             sum += data['y'][0]
 
@@ -84,6 +90,7 @@ def get_average_cpu_load():
 
 
 def create_instances(n):
+    """create n instances"""
     imageID = ''
     for img in ec2.images.filter(Owners=['106330839424']):
         imageID = img.id
@@ -102,39 +109,15 @@ def create_instances(n):
 
 
 def remove_instances(n):
+    """remove n instances"""
     instances = get_instances_list()
     for instance in ec2.instances.filter(InstanceIds=instances[:n]):
         instance.terminate()
         print('Removed Instance ' + instance.id)
 
 
-def get_Network_Request(period, seconds):
-    metric_name = 'RequestCountPerTarget'
-
-    targetGroup = get_elb_groupArn()
-
-    elb = cloudwatch.get_metric_statistics(
-        Period=period,
-        StartTime=datetime.utcnow() - timedelta(seconds=seconds),
-        EndTime=datetime.utcnow(),
-        MetricName=metric_name,
-        Namespace='AWS/ApplicationELB',
-        Statistics=['Average'],
-        Dimensions=[{'Name': 'TargetGroup', 'Value': targetGroup.rsplit(':', 1)[1]}]
-    )
-
-    print(elb)
-
-    result = {'x': [], 'y': []}
-
-    for d in elb['Datapoints']:
-        result['x'].insert(0, d['Timestamp'].astimezone(tz=pytz.timezone('US/Eastern')).strftime("%H:%M:%S"))
-        result['y'].insert(0, (d['Average']))
-
-    return result
-
-
 def get_CPU_Utilization(instance, period, seconds):
+    """get cpu data for instance"""
     metric_name = 'CPUUtilization'
 
     cpu = cloudwatch.get_metric_statistics(

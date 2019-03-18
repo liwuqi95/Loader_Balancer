@@ -13,6 +13,7 @@ from app.db import init_db
 
 @bp.before_app_request
 def request_count():
+    """Increase request count for every min """
     cursor = get_db().cursor(dictionary=True)
 
     time = datetime.now().strftime('%Y-%m-%d %H-%M-00')
@@ -43,25 +44,23 @@ def workers():
     return render_template('worker/index.html', instances=instances, cpu_data=cpu_data)
 
 
-@bp.route('/worker/<string:id>')
-def show(id):
-    return render_template('worker/show.html')
-
-
 @bp.route('/worker/create_instance')
 def create_instance():
+    """Create one instance"""
     create_instances(1)
     return jsonify('success')
 
 
 @bp.route('/worker/remove_instance')
 def remove_instance():
+    """Remove one instance"""
     remove_instances(1)
     return jsonify('success')
 
 
 @bp.route('/worker/cpu_data/<string:id>')
 def cpu_data(id):
+    """Get cpu and network data for one instance"""
     instance, data = get_CPU_Utilization(id, 600, 18000)
 
     cursor = get_db().cursor(dictionary=True)
@@ -89,6 +88,7 @@ def cpu_data(id):
 
 @bp.route('/worker/setting', methods=('GET', 'POST'))
 def setting():
+    """auto scaling setting page and update config"""
     if request.method == 'POST':
         growing_threshold = float(request.form['growing_threshold'])
         shrinking_threshold = float(request.form['shrinking_threshold'])
@@ -113,5 +113,6 @@ def setting():
 
 @bp.route('/worker/remove_data')
 def remove_data():
+    """remove all s3 and rds data"""
     init_db()
     return redirect(url_for('worker.workers'))
