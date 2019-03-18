@@ -47,20 +47,17 @@ TABLES['requests'] = (
     "  PRIMARY KEY (`id`)"
     ")")
 
-DB = None
-
 
 def get_db():
     """return current connection or create a new one"""
-    global DB
-    if DB is None:
-        DB = mysql.connector.connect(user='root', password='ece1779pass',
-                                     # host='127.0.0.1',
-                                     host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
-                                     port=3306,
-                                     database='cloud')
 
-    return DB
+    if 'db' not in g:
+        g.db = mysql.connector.connect(user='root', password='ece1779pass',
+                                       host='127.0.0.1',
+                                       # host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
+                                       port=3306,
+                                       database='cloud')
+    return g.db
 
 
 def close_db(e=None):

@@ -1,20 +1,21 @@
 from os import sys, path
+
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from app.aws import get_average_cpu_load, create_instances, remove_instances, get_Network_Request
-from app.db import get_db
-
+import mysql.connector
+import math
 import time
 
 
-def auto_scaling():
+def auto_scaling(con):
     try:
-        cursor = get_db().cursor(dictionary=True)
+        cursor = con.cursor(dictionary=True)
         cursor.execute(
             'SELECT id, growing_threshold, shrinking_threshold, expend_ratio, shrink_ratio'
             ' FROM settings s')
 
         setting = cursor.fetchone()
-        get_db().commit()
+        con.commit()
 
         growing_threshold = setting['growing_threshold']
         shrinking_threshold = setting['shrinking_threshold']
@@ -34,13 +35,19 @@ def auto_scaling():
             create_instances(round(count * (expend_ratio - 1)))
         elif average < shrinking_threshold and count > 1:
             print('LOGGING need to shrink by ratio ' + str(shrink_ratio))
-            remove_instances(round(count * (1 - 1 / shrink_ratio)))
+            remove_instances(count - math.ceil(count * (1 - 1 / shrink_ratio)))
 
         print('LOGGING==Finish Auto Scaling')
     except:
         print('LOGGING==Error')
 
 
+con = mysql.connector.connect(user='root', password='ece1779pass',
+                              host='127.0.0.1',
+                              # host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
+                              port=3306,
+                              database='cloud')
+
 while True:
-    auto_scaling()
+    auto_scaling(con)
     time.sleep(60)

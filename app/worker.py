@@ -20,8 +20,7 @@ def request_count():
     cursor.execute(
         'SELECT id, ip, request_count '
         ' FROM requests '
-        ' WHERE requests.created = %s '
-        ' ORDER BY created DESC', (time,)
+        ' WHERE requests.created = %s ', (time,)
     )
 
     r = cursor.fetchone()
@@ -35,6 +34,7 @@ def request_count():
             (r['request_count'] + 1, r['id']))
 
     get_db().commit()
+
 
 @bp.route('/workers')
 def workers():
