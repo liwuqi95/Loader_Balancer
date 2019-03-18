@@ -34,25 +34,11 @@ elb = boto3.client('elbv2', aws_access_key_id='AKIAIBS34MHIN5U5W24A',
                    aws_secret_access_key='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',
                    region_name='us-east-1')
 
-
-def upload_file_to_s3(id, type, file, filename):
-    s3.Bucket('ece1779a2group123bucket').upload_fileobj(file, str(id) + '/' + type + '/' + filename)
-
-
-def upload(key):
-    print('uploading ' + key)
-    bucket.upload_file(os.path.join(app.root_path, key), key)
-
-
-def download(key):
-    try:
-        bucket.download_file(key, os.path.join(app.root_path, key))
-    except botocore.exceptions.ClientError as e:
-        if e.response['Error']['Code'] == "404":
-            print("The object does not exist.")
-        else:
-            raise
-
+def move_to_s3(key):
+    path = os.path.join(app.root_path, key)
+    bucket.upload_file(path, key)
+    os.remove(path)
+    print("Moved to s3")
 
 def list_objects():
     res = cl.list_objects(Bucket='ece1779a2group123bucket')
@@ -60,7 +46,7 @@ def list_objects():
     return [{'Key': obj['Key']} for obj in res['Contents']]
 
 
-def clear():
+def clear_s3():
     objects = list_objects()
     if objects is not None:
         bucket.delete_objects(Delete={'Objects': objects})

@@ -2,11 +2,11 @@ import wand.display
 import cv2 as cv
 import numpy as np
 from wand.image import Image
-from app.aws import upload, upload_file_to_s3
+from app.aws import move_to_s3
 from app import app
 import os
 
-def save_thumbnail(id, file, imagename, frame_width, frame_height):
+def save_thumbnail(imagename, frame_width, frame_height):
     '''
     save thumbnail image (aspect ratio preserved) to thumbnails/image_name
 
@@ -25,10 +25,10 @@ def save_thumbnail(id, file, imagename, frame_width, frame_height):
         key = 'thumbnails/' + imagename
 
         img.save(filename=os.path.join(app.root_path, key))
-        upload(key)
+        move_to_s3(key)
 
 
-def draw_face_rectangle(id, img, image_name):
+def draw_face_rectangle(image_name):
     '''
     save face detected image to faces/image_name
 
@@ -52,7 +52,7 @@ def draw_face_rectangle(id, img, image_name):
 
     key = 'faces/' + image_name
     cv.imwrite(os.path.join(app.root_path, key), img)
-    upload(key)
+    move_to_s3(key)
 
     return True
 
