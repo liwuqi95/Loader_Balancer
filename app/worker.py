@@ -9,15 +9,9 @@ from app.aws import get_CPU_Utilization, get_instances_list, create_instances, r
 bp = Blueprint('worker', __name__)
 from app.db import init_db
 
-
+@bp.before_app_request
 def request_count(view):
-
-    def wrapped_view(**kwargs):
-        print(request.host)
-        return view(**kwargs)
-
-    return wrapped_view
-
+    print(request.host)
 
 @bp.route('/workers')
 @request_count
