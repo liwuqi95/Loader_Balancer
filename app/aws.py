@@ -71,7 +71,6 @@ def get_instances_list():
 
     for target in elb.describe_target_health(TargetGroupArn=groupArn)['TargetHealthDescriptions']:
         instances.append(target['Target']['Id'])
-    print(instances)
 
     return instances
 
@@ -87,7 +86,7 @@ def get_average_cpu_load():
         if 'y' in data and len(data['y']) > 0:
             sum += data['y'][0]
 
-    return sum / len(instances), len(instances)
+    return sum / len(instances) if len(instances) > 0 else 1, len(instances)
 
 
 def create_instances(n):
