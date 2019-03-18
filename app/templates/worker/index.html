@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+    <div class="row">
+
+        <div class="col-md-12" style="margin-bottom: 10px;">
+
+            <h4>My Workers ({{ instances|length }} in total)
+
+
+                <div style="float:right;">
+
+                    <a href="#" id="create-one"
+                       class="btn btn-success">Create One</a>
+
+                    <a href="#" id="remove-one"
+                       class="btn btn-warning" style="color:white;">Remove One</a>
+
+                    <a href="{{ url_for('worker.setting') }}"
+                       class="btn btn-primary">Setting</a>
+
+                    <a href="{{ url_for('worker.remove_data') }}"
+                       class="btn btn-danger" onclick="return confirm('Are you sure to remove all data?')">Remove
+                        Data</a>
+
+                </div>
+
+            </h4>
+        </div>
+
+        <div class="col-md-12">
+            <div class="alert alert-primary text-center" id="notice" style=" display: none;"
+                 role="alert">
+                notice
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for instance in instances %}
+            <div class="col-md-12 d-flex align-items-stretch" style="margin-bottom: 10px;">
+
+                <div class="card" style="width: 100%">
+                    <div class="card-header">
+                        <p class="card-title">ID: {{ instance }}</p>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="myChart{{ instance }}" style="width: 100%; height: 400px;"></canvas>
+                    </div>
+                    <div class="card-footer text-muted text-center">
+                        <a href="{{ url_for('worker.show', id=instance) }}"
+                           class="btn btn-outline-primary">Details</a>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <script>
+
+                $('#create-one').on('click', function () {
+                    $('#notice').text('Creating a Instance... Page will auto refresh in several seconds.');
+                    $('#notice').show();
+                    $.ajax({
+                        url: "worker/create_instance",
+                        success: function (data) {
+                            location.reload();
+                        }
+                    })
+                });
+
+                $('#remove-one').on('click', function () {
+                    $('#notice').text('Removing a Instance... Page will auto refresh in several seconds.');
+                    $('#notice').show();
+                    $.ajax({
+                        url: "worker/remove_instance",
+                        success: function (data) {
+                            location.reload();
+                        }
+                    })
+                });
+
+                $(document).ready(function () {
+                    $.ajax({
+                        url: "/worker/cpu_data/{{ instance }}", success: function (result) {
+                            new Chart(document.getElementById('myChart{{ instance }}'), {
+                                type: 'line',
+                                data: {
+                                    labels: result.x,
+                                    datasets: [{
+                                        data: result.y,
+                                        fill: false,
+                                        borderColor: "#3e95cd",
+                                    }]
+                                },
+                                maintainAspectRatio: false,
+
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        yAxes: [{
+                                            ticks: {
+                                                beginAtZero: true
+                                            }
+                                        }],
+                                        xAxes: [{
+                                            ticks: {
+                                                maxRotation: 0,
+                                                minRotation: 0,
+                                                maxTicksLimit: 8
+                                            }
+                                        }]
+                                    },
+                                    legend: {
+                                        display: false
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'CPU Utilization'
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+
+            </script>
+
+
+        {% endfor %}
+
+
+    </div>
+
+
+
+{% endblock %}
+
+
