@@ -82,7 +82,7 @@ def get_average_cpu_load():
     sum = 0
 
     for instance in instances:
-        i, data = get_CPU_Utilization(instance, 120, 1190)
+        i, data = get_CPU_Utilization(instance, 60, 119)
         if 'y' in data and len(data['y']) > 0:
             sum += data['y'][0]
 
@@ -111,7 +111,7 @@ def create_instances(n):
 def remove_instances(n):
     """remove n instances"""
     instances = get_instances_list()
-    for instance in instances:
+    for instance in instances[:n]:
         i = ec2.Instance(instance)
         print('Removing Instance ' + instance)
         i.terminate()

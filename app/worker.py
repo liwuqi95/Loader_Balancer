@@ -19,6 +19,8 @@ def request_count():
 
     time = datetime.now().strftime('%Y-%m-%d %H-%M-00')
 
+    print(request.environ['SERVER_NAME'])
+
     cursor.execute(
         'SELECT id, ip, request_count '
         ' FROM requests '
