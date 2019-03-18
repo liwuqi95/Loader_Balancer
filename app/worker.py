@@ -9,17 +9,11 @@ from app.aws import get_CPU_Utilization, get_instances_list, create_instances, r
 bp = Blueprint('worker', __name__)
 from app.db import init_db
 
-
-def request_count(view):
-    def wrapped_view(**kwargs):
-        print(request.host)
-        return view(**kwargs)
-
-    return wrapped_view
-
+@bp.before_app_request
+def request_count():
+    print("worker ip: "+ request.host + "\n")
 
 @bp.route('/workers')
-@request_count
 def workers():
     """List workers"""
     instances = get_instances_list()
@@ -46,16 +40,7 @@ def remove_instance():
 
 @bp.route('/worker/cpu_data/<string:id>')
 def cpu_data(id):
-    instance, data = get_CPU_Utilization(id, 600, 18000)
-
-    instance.public_ip_address
-
-    cursor = get_db().cursor(dictionary=True)
-    cursor.execute(
-        'SELECT count(r.id)'
-        ' FROM settings s'
-        ' WHERE s.ip = %s '
-        ' GROUP BY UNIX_TIMESTAMP(timestamp)')
+    data = get_CPU_Utilization(id, 600, 18000)
 
     return jsonify(data)
 
