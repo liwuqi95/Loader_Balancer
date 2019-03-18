@@ -53,8 +53,8 @@ def get_db():
 
     if 'db' not in g:
         g.db = mysql.connector.connect(user='root', password='ece1779pass',
-                                       host='127.0.0.1',
-                                       # host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
+                                       # host='127.0.0.1',
+                                       host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
                                        port=3306,
                                        database='cloud')
     return g.db

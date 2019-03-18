@@ -14,7 +14,7 @@ from app.db import init_db
 @bp.before_app_request
 def request_count():
     """Increase request count for every min """
-    cursor = get_db().cursor(dictionary=True)
+    cursor = get_db().cursor(dictionary=True, buffered=True)
 
     time = datetime.now().strftime('%Y-%m-%d %H-%M-00')
 
