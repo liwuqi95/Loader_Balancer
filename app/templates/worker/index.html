@@ -102,7 +102,14 @@
                                         data: result.y,
                                         fill: false,
                                         borderColor: "#3e95cd",
-                                    }]
+                                        label: "CPUUtilization"
+                                    },
+                                        {
+                                            data: result.z,
+                                            fill: false,
+                                            borderColor: "#e8c3b9",
+                                            label: "NetWork"
+                                        }]
                                 },
                                 maintainAspectRatio: false,
 
@@ -121,9 +128,6 @@
                                                 maxTicksLimit: 8
                                             }
                                         }]
-                                    },
-                                    legend: {
-                                        display: false
                                     },
                                     title: {
                                         display: true,

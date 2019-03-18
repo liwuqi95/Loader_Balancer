@@ -1,5 +1,5 @@
-from app.aws import get_average_cpu_load, create_instances, remove_instances, get_Network_Request
-from app.db import get_db
+from aws import get_average_cpu_load, create_instances, remove_instances, get_Network_Request
+from db import get_db
 
 import time
 

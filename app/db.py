@@ -41,7 +41,8 @@ TABLES['settings'] = (
 TABLES['requests'] = (
     "CREATE TABLE `requests` ("
     "  `id` int(11) NOT NULL AUTO_INCREMENT,"
-     " `ip` varchar(255) NOT NULL,"
+    "  `request_count` int(11) NOT NULL,"
+    " `ip` varchar(255) NOT NULL,"
     "  `created` DATETIME,"
     "  PRIMARY KEY (`id`)"
     ")")
