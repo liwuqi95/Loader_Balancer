@@ -7,7 +7,7 @@ from app.db import get_db
 from app.aws import get_CPU_Utilization, get_instances_list, create_instances, remove_instances
 
 bp = Blueprint('worker', __name__)
-from app.db import init_db_command
+from app.db import init_db
 
 
 @bp.route('/workers')
@@ -68,5 +68,5 @@ def setting():
 
 @bp.route('/worker/remove_data')
 def remove_data():
-    init_db_command()
+    init_db()
     return redirect(url_for('worker.workers'))

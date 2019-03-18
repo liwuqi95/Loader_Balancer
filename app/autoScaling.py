@@ -42,5 +42,3 @@ def auto_scaling():
 while True:
     auto_scaling()
     time.sleep(60)
-
-# get_Network_Request(60, 1800)

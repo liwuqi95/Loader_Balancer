@@ -3,6 +3,37 @@
 
 {% block content %}
 
+    <script>
+
+
+        addOne = function () {
+            $('#notice').text('Creating a Instance... Page will auto refresh in several seconds.');
+            $('#notice').show();
+
+
+            $.ajax({
+                url: "worker/create_instance",
+                success: function (data) {
+                    location.reload();
+                }
+            });
+        }
+
+        function removeOne() {
+            $('#notice').text('Removing a Instance... Page will auto refresh in several seconds.');
+            $('#notice').show();
+
+
+            $.ajax({
+                url: "worker/remove_instance",
+                success: function (data) {
+                    location.reload();
+                }
+            });
+        }
+
+    </script>
+
     <div class="row">
 
         <div class="col-md-12" style="margin-bottom: 10px;">
@@ -12,11 +43,13 @@
 
                 <div style="float:right;">
 
-                    <a href="#" id="create-one"
-                       class="btn btn-success">Create One</a>
+                    <button onclick="addOne()"
+                            class="btn btn-success">Create One
+                    </button>
 
-                    <a href="#" id="remove-one"
-                       class="btn btn-warning" style="color:white;">Remove One</a>
+                    <button onclick="removeOne()"
+                            class="btn btn-warning" style="color:white;">Remove One
+                    </button>
 
                     <a href="{{ url_for('worker.setting') }}"
                        class="btn btn-primary">Setting</a>
@@ -57,31 +90,7 @@
 
             </div>
 
-
             <script>
-
-                $('#create-one').on('click', function () {
-                    $('#notice').text('Creating a Instance... Page will auto refresh in several seconds.');
-                    $('#notice').show();
-                    $.ajax({
-                        url: "worker/create_instance",
-                        success: function (data) {
-                            location.reload();
-                        }
-                    })
-                });
-
-                $('#remove-one').on('click', function () {
-                    $('#notice').text('Removing a Instance... Page will auto refresh in several seconds.');
-                    $('#notice').show();
-                    $.ajax({
-                        url: "worker/remove_instance",
-                        success: function (data) {
-                            location.reload();
-                        }
-                    })
-                });
-
                 $(document).ready(function () {
                     $.ajax({
                         url: "/worker/cpu_data/{{ instance }}", success: function (result) {
@@ -127,6 +136,9 @@
                 });
 
             </script>
+
+
+
 
 
         {% endfor %}

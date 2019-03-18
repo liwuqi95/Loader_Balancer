@@ -78,6 +78,8 @@ def init_db():
 
     get_db().commit()
 
+    clear_s3()
+
 
 @click.command('init-db')
 @with_appcontext
@@ -87,7 +89,6 @@ def init_db_command():
     os.system('rm ' + os.path.join(app.root_path, 'images/*'))
     os.system('rm ' + os.path.join(app.root_path, 'faces/*'))
     os.system('rm ' + os.path.join(app.root_path, 'thumbnails/*'))
-    clear_s3()
 
     click.echo('Initialized the database.')
 

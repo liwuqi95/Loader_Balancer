@@ -4,7 +4,6 @@ import os
 from app import app
 import pytz
 
-
 s3 = boto3.resource('s3',
                     aws_access_key_id='AKIAIBS34MHIN5U5W24A',
                     aws_secret_access_key='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',
@@ -34,11 +33,13 @@ elb = boto3.client('elbv2', aws_access_key_id='AKIAIBS34MHIN5U5W24A',
                    aws_secret_access_key='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',
                    region_name='us-east-1')
 
+
 def move_to_s3(key):
     path = os.path.join(app.root_path, key)
     bucket.upload_file(path, key)
     os.remove(path)
     print("Moved to s3")
+
 
 def list_objects():
     res = cl.list_objects(Bucket='ece1779a2group123bucket')
@@ -83,7 +84,11 @@ def get_average_cpu_load():
 
 
 def create_instances(n):
-    instances = ec2.create_instances(ImageId='ami-0cb01fcf9cf16705c', InstanceType='t2.small', MinCount=n, MaxCount=n)
+    imageID = ''
+    for img in ec2.images.filter(Owners=['106330839424']):
+        imageID = img.id
+
+    instances = ec2.create_instances(ImageId=imageID, InstanceType='t2.small', MinCount=n, MaxCount=n)
 
     for instance in ec2.instances.filter(InstanceIds=list(map(lambda ins: ins.id, instances))):
         instance.wait_until_running()
@@ -105,7 +110,7 @@ def get_Network_Request(period, seconds):
     metric_name = 'RequestCountPerTarget'
 
     targetGroup = get_elb_groupArn()
-    print(targetGroup.rsplit(':', 1)[1])
+
     elb = cloudwatch.get_metric_statistics(
         Period=period,
         StartTime=datetime.utcnow() - timedelta(seconds=seconds),
