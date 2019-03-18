@@ -24,7 +24,7 @@ def request_count():
         ' WHERE requests.created = %s ', (time,)
     )
 
-    ip = ':'.join(os.uname()[1].split('-')[1:])
+    ip = '.'.join(os.uname()[1].split('-')[1:])
 
     r = cursor.fetchone()
 
