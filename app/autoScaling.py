@@ -5,8 +5,13 @@ from app.aws import get_average_cpu_load, create_instances, remove_instances
 import mysql.connector
 import time
 
+con = mysql.connector.connect(user='root', password='ece1779pass',
+                              # host='127.0.0.1',
+                              host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
+                              port=3306,
+                              database='cloud')
 
-def auto_scaling(con):
+def auto_scaling():
     try:
         cursor = con.cursor(dictionary=True)
         cursor.execute(
@@ -39,7 +44,9 @@ def auto_scaling(con):
             c = round(count * (1 - 1 / shrink_ratio))
 
             if c >= count:
-                c = count - 1 if count - 1 >= 0 else 0
+                c = count - 1
+            if c < 0:
+                c = 0
 
             remove_instances(c)
 
@@ -49,12 +56,8 @@ def auto_scaling(con):
         print('LOGGING==Error')
 
 
-con = mysql.connector.connect(user='root', password='ece1779pass',
-                              # host='127.0.0.1',
-                              host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
-                              port=3306,
-                              database='cloud')
+
 
 while True:
-    auto_scaling(con)
+    auto_scaling()
     time.sleep(60)

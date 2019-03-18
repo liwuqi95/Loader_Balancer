@@ -9,6 +9,7 @@ from app.aws import get_CPU_Utilization, get_instances_list, create_instances, r
 
 bp = Blueprint('worker', __name__)
 from app.db import init_db
+import pytz
 
 
 @bp.before_app_request
@@ -25,9 +26,10 @@ def request_count():
     )
 
     r = cursor.fetchone()
+
     if r is None:
         cursor.execute('INSERT INTO requests ( ip, created, request_count) VALUES (%s, %s, %s )',
-                       (request.host, time, 0))
+                       (request.host, time, 1))
     else:
         cursor.execute(
             'UPDATE requests SET request_count = %s WHERE id = %s ',
@@ -61,21 +63,23 @@ def remove_instance():
 @bp.route('/worker/cpu_data/<string:id>')
 def cpu_data(id):
     """Get cpu and network data for one instance"""
-    instance, data = get_CPU_Utilization(id, 600, 18000)
+    instance, data = get_CPU_Utilization(id, 30, 1800)
 
     cursor = get_db().cursor(dictionary=True)
 
     cursor.execute(
         'SELECT request_count, created '
         ' FROM requests WHERE ip = %s AND created > %s ',
-        (instance.public_ip_address, (datetime.now() - timedelta(minutes=30)).strftime('%Y-%m-%d %H-%M-00')))
+        (instance.private_ip_address + ":5000",
+         (datetime.utcnow() - timedelta(minutes=30)).strftime('%Y-%m-%d %H-%M-00')))
 
     requests = cursor.fetchall()
 
     result = {}
 
     for request in requests:
-        result[request['created'].strftime("%H:%M:%S")] = request['request_count']
+        t = (request['created'] - timedelta(hours=4)).strftime("%H:%M:00")
+        result[t] = request['request_count']
 
     for label in data['x']:
         if label in result:

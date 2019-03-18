@@ -3,42 +3,44 @@
 
 {% block content %}
 
+    <div class="row">
 
-<h4>My Album  <b style="font-size: 14px">({{images|length}} images)</b>
-
-
-    <div style="float: right">
-        <a href="{{  url_for('image.create')  }}" class="btn btn-outline-success">Add New Image</a>
-    </div>
-
-</h4>
+        <div class="col-md-12">
+            <h4>My Album <b style="font-size: 14px">({{ images|length }} images)</b>
 
 
-<div class="row">
+                <div style="float: right">
+                    <a href="{{ url_for('image.create') }}" class="btn btn-outline-success">Add New Image</a>
+                </div>
 
-    <div class="col-md-12">
-        {% if images|length == 0 %}
-        <p class="text-center" style="margin-top: 20%;">You do not have any image currently, upload now!</p>
-        {% endif %}
-    </div>
-
-    {% for image in images %}
-    <div class="col-md-3 d-flex align-items-stretch" style="margin-top: 20px;">
-        <div class="card" style="width: 100%">
-            <div class="card-header">
-                <p class="card-title">{{ image['name'] }}</p>
-            </div>
-            <div class="card-body">
-                <img src="{{image['thumb']}}" class="card-img-top" width="80%"
-                     style="    top: 50%; left:50%;transform: translate(-50%, -50%); position: relative;">
-            </div>
-            <div class="card-footer text-muted text-center">
-                <a href="{{url_for('image.show', id=image['id'])}}" class="btn btn-outline-primary">View</a>
-            </div>
+            </h4>
         </div>
-    </div>
-    {% endfor %}
-</div>
 
-</div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-12">
+            {% if images|length == 0 %}
+                <p class="text-center" style="margin-top: 20%;">You do not have any image currently, upload now!</p>
+            {% endif %}
+        </div>
+
+        {% for image in images %}
+            <div class="col-md-3 d-flex align-items-stretch" style="margin-top: 20px;">
+                <div class="card" style="width: 100%">
+                    <div class="card-header">
+                        <p class="card-title">{{ image['name'] }}</p>
+                    </div>
+                    <div class="card-body">
+                        <img src="{{ image['thumb'] }}" class="card-img-top" width="80%"
+                             style="    top: 50%; left:50%;transform: translate(-50%, -50%); position: relative;">
+                    </div>
+                    <div class="card-footer text-muted text-center">
+                        <a href="{{ url_for('image.show', id=image['id']) }}" class="btn btn-outline-primary">View</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

@@ -82,7 +82,7 @@ def get_average_cpu_load():
     sum = 0
 
     for instance in instances:
-        i, data = get_CPU_Utilization(instance, 60, 119)
+        i, data = get_CPU_Utilization(instance, 120, 1190)
         if 'y' in data and len(data['y']) > 0:
             sum += data['y'][0]
 
@@ -97,12 +97,11 @@ def create_instances(n):
 
     instances = ec2.create_instances(ImageId=imageID, InstanceType='t2.small',
                                      SecurityGroupIds=['sg-06f0dba2ff5b61362'], MinCount=n,
-                                     MaxCount=n)
+                                     MaxCount=n, Monitoring={'Enabled': True})
 
     for instance in ec2.instances.filter(InstanceIds=list(map(lambda ins: ins.id, instances))):
         print('Creating Instance ' + instance.id + ' with image ' + imageID)
         instance.wait_until_running()
-
 
     l = list(map(lambda x: {'Id': x.id, 'Port': 5000, }, instances))
     groupArn = get_elb_groupArn()
@@ -116,7 +115,6 @@ def remove_instances(n):
         i = ec2.Instance(instance)
         print('Removing Instance ' + instance)
         i.terminate()
-
 
 
 def get_CPU_Utilization(instance, period, seconds):
@@ -143,7 +141,7 @@ def get_CPU_Utilization(instance, period, seconds):
     data.sort(key=lambda x: x['Timestamp'])
 
     for d in data:
-        result['x'].append(d['Timestamp'].astimezone(tz=pytz.timezone('US/Eastern')).strftime("%H:%M:%S"))
+        result['x'].append(d['Timestamp'].astimezone(tz=pytz.timezone('US/Eastern')).strftime("%H:%M:00"))
         result['y'].append(d['Average'])
 
     instance = ec2.Instance(instance)
