@@ -46,6 +46,7 @@ def get_db():
     global DB
     if DB is None:
         DB = mysql.connector.connect(user='root', password='ece1779pass',
+                                     # host='127.0.0.1',
                                      host='ece1779a2db.c15xmaymmeep.us-east-1.rds.amazonaws.com',
                                      port=3306,
                                      database='cloud')
@@ -64,12 +65,13 @@ def close_db(e=None):
 def init_db():
     """Perform init db Mysql operations"""
     cursor = get_db().cursor()
-
+    print('dropping tables')
     cursor.execute("DROP TABLE IF EXISTS images;")
     cursor.execute("DROP TABLE IF EXISTS users;")
     cursor.execute("DROP TABLE IF EXISTS settings;")
 
-    for table_name in TABLES:
+    print('creating tables')
+    for table_name in TABLES.keys():
         cursor.execute(TABLES[table_name])
 
     cursor.execute(
@@ -77,7 +79,7 @@ def init_db():
         (80, 40, 2, 4))
 
     get_db().commit()
-
+    print('clearing s3')
     clear_s3()
 
 
