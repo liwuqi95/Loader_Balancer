@@ -11,7 +11,6 @@ from app.db import init_db
 
 
 def request_count(view):
-
     def wrapped_view(**kwargs):
         print(request.host)
         return view(**kwargs)
@@ -47,7 +46,16 @@ def remove_instance():
 
 @bp.route('/worker/cpu_data/<string:id>')
 def cpu_data(id):
-    data = get_CPU_Utilization(id, 600, 18000)
+    instance, data = get_CPU_Utilization(id, 600, 18000)
+
+    instance.public_ip_address
+
+    cursor = get_db().cursor(dictionary=True)
+    cursor.execute(
+        'SELECT count(r.id)'
+        ' FROM settings s'
+        ' WHERE s.ip = %s '
+        ' GROUP BY UNIX_TIMESTAMP(timestamp)')
 
     return jsonify(data)
 

@@ -153,7 +153,7 @@ def get_CPU_Utilization(instance, period, seconds):
         result['x'].insert(0, d['Timestamp'].astimezone(tz=pytz.timezone('US/Eastern')).strftime("%H:%M:%S"))
         result['y'].insert(0, (d['Average']))
 
-    return result
+    return instance, result
 
 
 if __name__ == "__main__":
