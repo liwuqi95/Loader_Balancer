@@ -46,7 +46,7 @@ def request_count():
 def workers():
     """List workers"""
 
-    if os.uname()[1] is not 'manager-app':
+    if os.uname()[1] != 'manager-app':
         return redirect(url_for('image.index'))
     else:
         instances = get_instances_list()
