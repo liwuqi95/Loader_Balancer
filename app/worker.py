@@ -39,14 +39,18 @@ def request_count():
     get_db().commit()
 
 
+
+
+
 @bp.route('/workers')
 def workers():
     """List workers"""
 
-
-    instances = get_instances_list()
-
-    return render_template('worker/index.html', instances=instances, cpu_data=cpu_data)
+    if os.uname()[1] is not 'manager-app':
+        return redirect(url_for('image.index'))
+    else:
+        instances = get_instances_list()
+        return render_template('worker/index.html', instances=instances, cpu_data=cpu_data)
 
 
 @bp.route('/worker/create_instance')
