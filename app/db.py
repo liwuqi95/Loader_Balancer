@@ -83,7 +83,7 @@ def init_db():
 
     cursor.execute(
         "INSERT INTO settings (growing_threshold, shrinking_threshold, expend_ratio, shrink_ratio) VALUES (%s, %s, %s, %s)",
-        (80, 40, 2, 4))
+        (50, 30, 2, 2))
 
     get_db().commit()
     print('clearing s3')
