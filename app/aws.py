@@ -103,8 +103,6 @@ def create_instances(n):
         print('Creating Instance ' + instance.id + ' with image ' + imageID)
         instance.wait_until_running()
 
-    time.sleep(60)
-
     print('Instance created!')
 
     l = list(map(lambda x: {'Id': x.id, 'Port': 5000, }, instances))
